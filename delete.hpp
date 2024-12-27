@@ -3,11 +3,16 @@
 
 #include "command.hpp"
 #include "head.hpp"
+class UTaste;
 
-class Deleter : public Command{
+class Deleter : public Command
+{
 public:
-    Deleter(string districts_path, string restaurants_path);
-
+    Deleter(string districts_path, string restaurants_path, UTaste& utaste_ref);
+    virtual void checkCommand(vector<string> command_words);
+    void deleteReservefunc(vector<string> &command_words);
+private:
+    UTaste* utaste;
 };
 
 #endif
