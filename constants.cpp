@@ -15,3 +15,7 @@ const string GET_RESTAURANTS = "restaurants";
 const int CONST_WORD_NO = 3;
 const string GET_DISTRICTS = "districts";
 const string GET_RESTAURANT = "restaurant_detail";
+const string INCREASE_BUDGET = "increase_budget";
+const string SHOW_BUDGET = "show_budget";
+const string AMOUNT = "amount";
+const string PERCENT = "percent";

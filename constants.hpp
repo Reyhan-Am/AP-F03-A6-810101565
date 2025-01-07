@@ -19,5 +19,8 @@ extern const string GET_RESTAURANTS;
 extern const int CONST_WORD_NO;
 extern const string GET_DISTRICTS;
 extern const string GET_RESTAURANT;
-
+extern const string INCREASE_BUDGET;
+extern const string SHOW_BUDGET;
+extern const string AMOUNT;
+extern const string PERCENT;
 #endif

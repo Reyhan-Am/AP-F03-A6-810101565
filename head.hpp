@@ -11,6 +11,7 @@
 #include <sstream>
 #include <iostream>
 #include <queue>
+#include <cctype>
 #include "constants.hpp"
 
 using namespace std;
@@ -20,6 +21,7 @@ struct USER_DATA
     bool is_logged_in;
     string password;
     string user_district;
+    int user_balance;
 };
 typedef string USERNAME;
 typedef string DISTRICT;
