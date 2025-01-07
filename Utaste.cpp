@@ -1,10 +1,10 @@
 #include "Utaste.hpp"
 
-UTaste::UTaste(string districts_path, string restaurants_path)
-    : putter(districts_path, restaurants_path, *this),
-      poster(districts_path, restaurants_path, *this),
-      deleter(districts_path, restaurants_path, *this),
-      getter(districts_path, restaurants_path) {}
+UTaste::UTaste(string districts_path, string restaurants_path, string discounts_path)
+    : putter(districts_path, restaurants_path, discounts_path, *this),
+      poster(districts_path, restaurants_path, discounts_path, *this),
+      deleter(districts_path, restaurants_path, discounts_path, *this),
+      getter(districts_path, restaurants_path, discounts_path) {}
 void UTaste::checkCommand()
 {
     string command, word;
@@ -73,10 +73,15 @@ void UTaste::checkCommand()
 }
 void UTaste::deleteReserve(vector<string> &command_words)
 {
-    putter.deleteReserve(command_words);
+    int expense = putter.deleteReserve(command_words);
     poster.deleteReserve(command_words);
     deleter.deleteReserve(command_words);
     getter.deleteReserve(command_words);
+    expense = (6 * expense) / 10;
+    putter.setBudget(expense);
+    getter.setBudget(expense);
+    poster.setBudget(expense);
+    deleter.setBudget(expense);
     throw Exception(OK);
 }
 void UTaste::setNewUser(pair<USERNAME, USER_DATA> &new_user)
@@ -117,7 +122,23 @@ void UTaste::setReserve(string *&restaurant_name_ptr, string *&table_id_ptr, str
     getter.handleReserve(restaurant_name_ptr, table_id_ptr, start_time_ptr, end_time_ptr, foods_ptr);
     deleter.handleReserve(restaurant_name_ptr, table_id_ptr, start_time_ptr, end_time_ptr, foods_ptr);
     poster.handleReserve(restaurant_name_ptr, table_id_ptr, start_time_ptr, end_time_ptr, foods_ptr);
-    putter.printReserveMessage(restaurant_name_ptr);
+    pair<int, int> expenses = putter.printReserveMessage(restaurant_name_ptr);
+    putter.setLastReserveExpense(restaurant_name_ptr, expenses);
+    getter.setLastReserveExpense(restaurant_name_ptr, expenses);
+    deleter.setLastReserveExpense(restaurant_name_ptr, expenses);
+    poster.setLastReserveExpense(restaurant_name_ptr, expenses);
+    putter.decreaseBudget(expenses.first);
+    getter.decreaseBudget(expenses.first);
+    poster.decreaseBudget(expenses.first);
+    deleter.decreaseBudget(expenses.first);
+}
+void UTaste::increaseBudget(int &amount)
+{
+    putter.setBudget(amount);
+    getter.setBudget(amount);
+    poster.setBudget(amount);
+    deleter.setBudget(amount);
+    throw Exception(OK);
 }
 void UTaste::printing()
 {

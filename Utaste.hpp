@@ -10,7 +10,7 @@
 class UTaste
 {
 public:
-    UTaste(string districts_path, string restaurants_path);
+    UTaste(string districts_path, string restaurants_path, string discounts_path);
     void checkCommand();
     void setLogin(string username);
     void setLogout(string username);
@@ -20,6 +20,7 @@ public:
                     string *&foods_ptr);
     void setNewUser(pair<USERNAME, USER_DATA> &new_user);
     void deleteReserve(vector<string> &command_wordl);
+    void increaseBudget(int &amount);
     void printing();
 
 protected:
