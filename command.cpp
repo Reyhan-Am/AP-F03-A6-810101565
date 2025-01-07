@@ -1,9 +1,9 @@
 #include "command.hpp"
 #include "Utaste.hpp"
-Command::Command(string districts_path, string restaurants_path)
+Command::Command(string districts_path, string restaurants_path, string discounts_path)
 {
     readDistricts(districts_path);
-    readRestaurants(restaurants_path);
+    readRestaurants(restaurants_path, discounts_path);
 }
 void Command::readDistricts(string districs_path)
 {
@@ -37,7 +37,7 @@ void Command::readDistricts(string districs_path)
         }
     }
 }
-void Command::readRestaurants(string restaurants_path)
+void Command::readRestaurants(string restaurants_path, string discounts_path)
 {
     fstream csv_file;
     csv_file.open(restaurants_path);
@@ -70,16 +70,92 @@ void Command::readRestaurants(string restaurants_path)
                 temp_foods[temp_food[0]] = stoi(temp_food[1]);
                 temp_food.clear();
             }
-            Restaurant temp_restaurant(temp_line[0], temp_line[1], temp_foods, stoi(temp_line[3]), stoi(temp_line[4]), stoi(temp_line[5]));
+            Discount first_dis;
+            TotalDiscount total_dis;
+            vector<ItemSpecificDiscount> food_dis;
+            readDiscounts(first_dis, total_dis, food_dis, discounts_path, temp_line[0]);
+            Restaurant temp_restaurant(temp_line[0], temp_line[1], temp_foods, stoi(temp_line[3]), stoi(temp_line[4]), stoi(temp_line[5]), first_dis, total_dis, food_dis);
             restaurants.push_back(temp_restaurant);
             temp_foods.clear();
             temp_line.clear();
         }
     }
 }
+void Command::readDiscounts(Discount &first_dis, TotalDiscount &total_dis, vector<ItemSpecificDiscount> &food_dis, string discounts_path, string &name)
+{
+    fstream csv_file;
+    csv_file.open(discounts_path);
+    string line, word;
+    vector<string> temp_line, temp_dis;
+    int first_line_flag = 1;
+    while (getline(csv_file, line))
+    {
+        stringstream line_stream(line);
+        if (first_line_flag)
+        {
+            first_line_flag = 0;
+            continue;
+        }
+        else
+        {
+            while (getline(line_stream, word, ','))
+            {
+                temp_line.push_back(word);
+            }
+            if (temp_line[0] == name)
+            {
+                stringstream s1(temp_line[1]);
+                while (getline(s1, word, ';'))
+                {
+                    temp_dis.push_back(word);
+                }
+                if (temp_dis[0] != "none")
+                {
+                    total_dis.update_values(temp_dis[0], stoi(temp_dis[1]), stoi(temp_dis[2]));
+                }
+                temp_dis.clear();
+                stringstream s2(temp_line[2]);
+                while (getline(s2, word, ';'))
+                {
+                    temp_dis.push_back(word);
+                }
+                if (temp_dis[0] != "none")
+                {
+                    first_dis.update_values(temp_dis[0], stoi(temp_dis[1]));
+                }
+                temp_dis.clear();
+                stringstream s3(temp_line[3]);
+                while (getline(s3, word, '|'))
+                {
+                    stringstream s4(word);
+                    while (getline(s4, word, ';'))
+                    {
+                        temp_dis.push_back(word);
+                    }
+                    if (temp_dis[0] != "none")
+                    {
+                        stringstream s5(temp_dis[1]);
+                        temp_dis.erase(temp_dis.begin() + 1, temp_dis.end());
+                        while (getline(s5, word, ':'))
+                        {
+                            temp_dis.push_back(word);
+                        }
+                        food_dis.push_back(ItemSpecificDiscount(temp_dis[0], stoi(temp_dis[2]), temp_dis[1]));
+                    }
+                    temp_dis.clear();
+                }
+                temp_line.clear();
+            }
+            else
+            {
+                temp_line.clear();
+            }
+        }
+    }
+}
 void Command::setNewUser(pair<USERNAME, USER_DATA> &new_user)
 {
-    users[new_user.first] = {false, new_user.second.password, new_user.second.user_district};
+    users[new_user.first] = {false, new_user.second.password, new_user.second.user_district, 0};
 }
 void Command::setLogin(string username)
 {
@@ -213,15 +289,24 @@ void Command::handleReserve(string *&restaurant_name_ptr, string *&table_id_ptr,
         }
     }
 }
-void Command::printReserveMessage(string *&restaurant_name_ptr)
+pair<int, int> Command::printReserveMessage(string *&restaurant_name_ptr)
 {
+    int account_balance = 0;
+    for (auto user : users)
+    {
+        if (user.second.is_logged_in == true)
+        {
+            account_balance = user.second.user_balance;
+        }
+    }
     for (auto restaurant : restaurants)
     {
         if (restaurant.getName() == (*restaurant_name_ptr).substr(1, (*restaurant_name_ptr).size() - 2))
         {
-            restaurant.printReserveMessage();
+            return restaurant.printReserveMessage(account_balance);
         }
     }
+    return {0, 0};
 }
 bool is_bad_delReserve_request(vector<string> &command_words, string *&restaurant_name_ptr, string *&reserve_id_ptr)
 {
@@ -245,7 +330,7 @@ bool is_bad_delReserve_request(vector<string> &command_words, string *&restauran
     }
     return false;
 }
-void Command::deleteReserve(vector<string> &command_words)
+int Command::deleteReserve(vector<string> &command_words)
 {
     string *restaurant_name_ptr = nullptr;
     string *reserve_id_ptr = nullptr;
@@ -265,11 +350,32 @@ void Command::deleteReserve(vector<string> &command_words)
     {
         if (restaurant.getName() == (*restaurant_name_ptr).substr(1, (*restaurant_name_ptr).size() - 2))
         {
-            restaurant.deleteReserve(owner, reserve_id_ptr);
-            return;
+            return restaurant.deleteReserve(owner, reserve_id_ptr);
         }
     }
     throw Exception(NOT_FOUND);
+}
+void Command::setLastReserveExpense(string *&restaurant_name_ptr, pair<int, int> &expense)
+{
+    for (auto &restaurant : restaurants)
+    {
+        if (restaurant.getName() == (*restaurant_name_ptr).substr(1, (*restaurant_name_ptr).size() - 2))
+        {
+            restaurant.setLastReserveExpense(expense);
+        }
+    }
+}
+void Command::setBudget(int &amount)
+{
+    string username = "";
+    for (auto user : users)
+    {
+        if (user.second.is_logged_in == true)
+        {
+            username = user.first;
+        }
+    }
+    users[username].user_balance += amount;
 }
 void Command::printing()
 {
