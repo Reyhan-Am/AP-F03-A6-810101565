@@ -9,8 +9,9 @@ class UTaste;
 class Getter : public Command
 {
 public:
-    Getter(string districts_path, string restaurants_path);
+    Getter(string districts_path, string restaurants_path, string discounts_path);
     void getDistrict(vector<string> &command_words);
+    void showBudget();
     void getDistricts(vector<string> &command_words);
     void getRestaurantDetail(vector<string> &command_words);
     void getRestaurants(vector<string> &command_words);

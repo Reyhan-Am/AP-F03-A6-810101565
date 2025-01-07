@@ -1,6 +1,6 @@
 #include "post.hpp"
 #include "Utaste.hpp"
-Poster::Poster(string districts_path, string restaurants_path, UTaste &utaste_ref) : Command(districts_path, restaurants_path), utaste(&utaste_ref) {}
+Poster::Poster(string districts_path, string restaurants_path, string discounts_path, UTaste &utaste_ref) : Command(districts_path, restaurants_path, discounts_path), utaste(&utaste_ref) {}
 void Poster::checkCommand(vector<string> command_words)
 {
     if (command_words[1] == SIGNUP)
@@ -18,6 +18,10 @@ void Poster::checkCommand(vector<string> command_words)
     else if (command_words[1] == RESERVE)
     {
         this->reserveFunc(command_words);
+    }
+    else if (command_words[1] == INCREASE_BUDGET)
+    {
+        this->increaseBudget(command_words);
     }
     else
     {
@@ -43,6 +47,26 @@ bool check_pointers(string *&restaurant_name_ptr, string *&table_id_ptr, string 
         return false;
     }
     return true;
+}
+bool isNumber(const std::string &str)
+{
+    return !str.empty() && std::all_of(str.begin(), str.end(), ::isdigit);
+}
+bool is_bad_budget_request(string *&amount_ptr, vector<string> &command_words)
+{
+    for (auto it = command_words.begin() + CONST_WORD_NO; it != command_words.end(); it++)
+    {
+        if (*it == "amount" && (it + 1 != command_words.end()) && isNumber(*(it + 1)) == true)
+        {
+            amount_ptr = &*(it + 1);
+        }
+    }
+    if ((amount_ptr == nullptr) or (*amount_ptr == ""
+                                                   ""))
+    {
+        return true;
+    }
+    return false;
 }
 bool is_bad_reserve_request(string *&restaurant_name_ptr, string *&table_id_ptr, string *&start_time_ptr,
                             string *&end_time_ptr,
@@ -188,5 +212,22 @@ void Poster::reserveFunc(vector<string> &command_words)
     else
     {
         utaste->setReserve(restaurant_name_ptr, table_id_ptr, start_time_ptr, end_time_ptr, foods_ptr);
+    }
+}
+void Poster::increaseBudget(vector<string> &command_words)
+{
+    if (this->hasPermission("") == false)
+    {
+        throw Exception(PERMISSION);
+    }
+    string *amount_ptr = nullptr;
+    if (is_bad_budget_request(amount_ptr, command_words) == true)
+    {
+        throw Exception(BAD_REQ);
+    }
+    else
+    {
+        int amount = stoi(*amount_ptr);
+        utaste->increaseBudget(amount);
     }
 }

@@ -1,6 +1,6 @@
 #include "put.hpp"
 #include "Utaste.hpp"
-Putter::Putter(string districts_path, string restaurants_path, UTaste &utaste_ref) : Command(districts_path, restaurants_path), utaste(&utaste_ref) {}
+Putter::Putter(string districts_path, string restaurants_path, string discounts_path, UTaste &utaste_ref) : Command(districts_path, restaurants_path, discounts_path), utaste(&utaste_ref) {}
 void Putter::checkCommand(vector<string> command_words)
 {
     if (command_words[1] == PUT_MY_DISTRICT)

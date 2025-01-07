@@ -8,7 +8,7 @@ class UTaste;
 class Deleter : public Command
 {
 public:
-    Deleter(string districts_path, string restaurants_path, UTaste& utaste_ref);
+    Deleter(string districts_path, string restaurants_path, string discounts_path, UTaste& utaste_ref);
     virtual void checkCommand(vector<string> command_words);
     void deleteReservefunc(vector<string> &command_words);
 private:

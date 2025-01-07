@@ -1,6 +1,6 @@
 #include "get.hpp"
 #include "Utaste.hpp"
-Getter::Getter(string districts_path, string restaurants_path) : Command(districts_path, restaurants_path) {}
+Getter::Getter(string districts_path, string restaurants_path, string discounts_path) : Command(districts_path, restaurants_path, discounts_path) {}
 void Getter::checkCommand(vector<string> command_words)
 {
     if (this->hasPermission("") == false)
@@ -31,6 +31,10 @@ void Getter::checkCommand(vector<string> command_words)
     else if (command_words[1] == RESERVES)
     {
         this->getUserReserves(command_words);
+    }
+    else if (command_words[1] == SHOW_BUDGET)
+    {
+        this->showBudget();
     }
     else
     {
@@ -285,7 +289,9 @@ void Getter::getUserReservesAll(string &owner)
              { return a.first.getTimes().first < b.first.getTimes().first; });
         for (auto item : all_user_reserves)
         {
-            item.first.printUserReservesRI(item.second);
+            int without_dis = 0;
+            int with_dis = 0;
+            item.first.printUserReservesRI(item.second, with_dis, without_dis);
         }
     }
 }
@@ -361,6 +367,16 @@ void Getter::getDistricts(vector<string> &command_words)
             {
                 cout << ", ";
             }
+        }
+    }
+}
+void Getter::showBudget()
+{
+    for (auto user : users)
+    {
+        if (user.second.is_logged_in == true)
+        {
+            cout << user.second.user_balance << endl;
         }
     }
 }

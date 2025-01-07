@@ -1,6 +1,6 @@
 #include "delete.hpp"
 #include "Utaste.hpp"
-Deleter::Deleter(string districts_path, string restaurants_path, UTaste &utaste_ref) : Command(districts_path, restaurants_path), utaste(&utaste_ref) {}
+Deleter::Deleter(string districts_path, string restaurants_path, string discounts_path, UTaste &utaste_ref) : Command(districts_path, restaurants_path, discounts_path), utaste(&utaste_ref) {}
 void Deleter::checkCommand(vector<string> command_words)
 {
     if (this->hasPermission("") == false)
