@@ -5,7 +5,7 @@ BUILD_DIRECTORY=build
 
 all: UTaste
 
-UTaste: $(BUILD_DIRECTORY)/main.o $(BUILD_DIRECTORY)/Utaste.o $(BUILD_DIRECTORY)/reserves.o $(BUILD_DIRECTORY)/helperfunctions.o $(BUILD_DIRECTORY)/Utaste.o $(BUILD_DIRECTORY)/constants.o $(BUILD_DIRECTORY)/exception.o $(BUILD_DIRECTORY)/restaurant.o $(BUILD_DIRECTORY)/command.o $(BUILD_DIRECTORY)/put.o $(BUILD_DIRECTORY)/post.o $(BUILD_DIRECTORY)/get.o $(BUILD_DIRECTORY)/delete.o 
+UTaste: $(BUILD_DIRECTORY)/main.o $(BUILD_DIRECTORY)/Utaste.o $(BUILD_DIRECTORY)/reserves.o $(BUILD_DIRECTORY)/discount.o $(BUILD_DIRECTORY)/item_specific_discount.o $(BUILD_DIRECTORY)/total_discount.o $(BUILD_DIRECTORY)/helperfunctions.o $(BUILD_DIRECTORY)/Utaste.o $(BUILD_DIRECTORY)/constants.o $(BUILD_DIRECTORY)/exception.o $(BUILD_DIRECTORY)/restaurant.o $(BUILD_DIRECTORY)/command.o $(BUILD_DIRECTORY)/put.o $(BUILD_DIRECTORY)/post.o $(BUILD_DIRECTORY)/get.o $(BUILD_DIRECTORY)/delete.o 
 	$(Compiler) $^ -o UTaste
 
 $(BUILD_DIRECTORY):
@@ -16,6 +16,15 @@ $(BUILD_DIRECTORY)/main.o: main.cpp head.hpp Utaste.hpp | $(BUILD_DIRECTORY)
 
 $(BUILD_DIRECTORY)/constants.o: constants.cpp constants.hpp| $(BUILD_DIRECTORY)
 	$(Compiler) -c constants.cpp -o $(BUILD_DIRECTORY)/constants.o
+
+$(BUILD_DIRECTORY)/discount.o: discount.cpp discount.hpp head.hpp| $(BUILD_DIRECTORY)
+	$(Compiler) -c discount.cpp -o $(BUILD_DIRECTORY)/discount.o
+
+$(BUILD_DIRECTORY)/total_discount.o: total_discount.cpp total_discount.hpp discount.hpp head.hpp| $(BUILD_DIRECTORY)
+	$(Compiler) -c total_discount.cpp -o $(BUILD_DIRECTORY)/total_discount.o
+
+$(BUILD_DIRECTORY)/item_specific_discount.o: item_specific_discount.cpp item_specific_discount.hpp head.hpp discount.hpp| $(BUILD_DIRECTORY)
+	$(Compiler) -c item_specific_discount.cpp -o $(BUILD_DIRECTORY)/item_specific_discount.o
 
 $(BUILD_DIRECTORY)/reserves.o: reserves.cpp reserves.hpp head.hpp| $(BUILD_DIRECTORY)
 	$(Compiler) -c reserves.cpp -o $(BUILD_DIRECTORY)/reserves.o	
@@ -44,7 +53,7 @@ $(BUILD_DIRECTORY)/delete.o: delete.cpp delete.hpp command.hpp head.hpp Utaste.h
 $(BUILD_DIRECTORY)/get.o: get.cpp get.hpp command.hpp head.hpp Utaste.hpp| $(BUILD_DIRECTORY)
 	$(Compiler) -c get.cpp -o $(BUILD_DIRECTORY)/get.o
 
-$(BUILD_DIRECTORY)/restaurant.o: restaurant.cpp restaurant.hpp head.hpp reserves.hpp reserves.cpp| $(BUILD_DIRECTORY)
+$(BUILD_DIRECTORY)/restaurant.o: restaurant.cpp restaurant.hpp head.hpp reserves.hpp reserves.cpp discount.hpp total_discount.hpp item_specific_discount.hpp discount.cpp total_discount.cpp item_specific_discount.cpp| $(BUILD_DIRECTORY)
 	$(Compiler) -c restaurant.cpp -o $(BUILD_DIRECTORY)/restaurant.o
 
 
