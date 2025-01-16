@@ -23,6 +23,11 @@ struct USER_DATA
     string user_district;
     int user_balance;
 };
+struct Temp
+{
+    pair<int, int> expenses;
+    string msg;
+};
 typedef string USERNAME;
 typedef string DISTRICT;
 typedef vector<string> NEIGHBORS;
@@ -30,5 +35,7 @@ typedef map<USERNAME, USER_DATA> USERS;
 typedef vector<pair<DISTRICT, NEIGHBORS>> DISTRICTS;
 
 bool isStartWithComma(string word);
+
+extern map<string, string> sessionData;
 
 #endif

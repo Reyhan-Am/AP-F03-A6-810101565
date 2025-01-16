@@ -1,9 +1,9 @@
 #include "command.hpp"
 #include "Utaste.hpp"
-Command::Command(string districts_path, string restaurants_path, string discounts_path)
+Command::Command(string restaurants_path, string districts_path, string discounts_path, UTaste& utaste_ref)
 {
     readDistricts(districts_path);
-    readRestaurants(restaurants_path, discounts_path);
+    readRestaurants(restaurants_path, discounts_path, utaste_ref);
 }
 void Command::readDistricts(string districs_path)
 {
@@ -37,7 +37,7 @@ void Command::readDistricts(string districs_path)
         }
     }
 }
-void Command::readRestaurants(string restaurants_path, string discounts_path)
+void Command::readRestaurants(string restaurants_path, string discounts_path, UTaste& utaste_ref)
 {
     fstream csv_file;
     csv_file.open(restaurants_path);
@@ -74,7 +74,7 @@ void Command::readRestaurants(string restaurants_path, string discounts_path)
             TotalDiscount total_dis;
             vector<ItemSpecificDiscount> food_dis;
             readDiscounts(first_dis, total_dis, food_dis, discounts_path, temp_line[0]);
-            Restaurant temp_restaurant(temp_line[0], temp_line[1], temp_foods, stoi(temp_line[3]), stoi(temp_line[4]), stoi(temp_line[5]), first_dis, total_dis, food_dis);
+            Restaurant temp_restaurant(temp_line[0], temp_line[1], temp_foods, stoi(temp_line[3]), stoi(temp_line[4]), stoi(temp_line[5]), first_dis, total_dis, food_dis, utaste_ref);
             restaurants.push_back(temp_restaurant);
             temp_foods.clear();
             temp_line.clear();
@@ -155,7 +155,7 @@ void Command::readDiscounts(Discount &first_dis, TotalDiscount &total_dis, vecto
 }
 void Command::setNewUser(pair<USERNAME, USER_DATA> &new_user)
 {
-    users[new_user.first] = {false, new_user.second.password, new_user.second.user_district, 0};
+    users[new_user.first] = {false, new_user.second.password, new_user.second.user_district, 10000000};
 }
 void Command::setLogin(string username)
 {
@@ -231,6 +231,16 @@ bool Command::checkRestaurantTimeConflic(Restaurant &restaurant, string *&start_
     }
     return false;
 }
+void Command::delLastReserve(string &name)
+{
+    for (auto &r : restaurants)
+    {
+        if (r.getName() == name)
+        {
+            r.delLastReserve();
+        }
+    }
+}
 bool Command::checkUserTimeConflict(string *&start_time_ptr, string *&end_time_ptr)
 {
     string owner = "";
@@ -289,7 +299,7 @@ void Command::handleReserve(string *&restaurant_name_ptr, string *&table_id_ptr,
         }
     }
 }
-pair<int, int> Command::printReserveMessage(string *&restaurant_name_ptr)
+Temp Command::printReserveMessage(string *&restaurant_name_ptr)
 {
     int account_balance = 0;
     for (auto user : users)
@@ -306,7 +316,7 @@ pair<int, int> Command::printReserveMessage(string *&restaurant_name_ptr)
             return restaurant.printReserveMessage(account_balance);
         }
     }
-    return {0, 0};
+    return {{0, 0}, ""};
 }
 bool is_bad_delReserve_request(vector<string> &command_words, string *&restaurant_name_ptr, string *&reserve_id_ptr)
 {

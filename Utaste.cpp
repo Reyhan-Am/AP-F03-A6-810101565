@@ -1,74 +1,31 @@
 #include "Utaste.hpp"
 
-UTaste::UTaste(string districts_path, string restaurants_path, string discounts_path)
-    : putter(districts_path, restaurants_path, discounts_path, *this),
-      poster(districts_path, restaurants_path, discounts_path, *this),
-      deleter(districts_path, restaurants_path, discounts_path, *this),
-      getter(districts_path, restaurants_path, discounts_path) {}
-void UTaste::checkCommand()
+UTaste::UTaste(string restaurants_path, string districts_path, string discounts_path)
+    : putter(restaurants_path, districts_path, discounts_path, *this),
+      poster(restaurants_path, districts_path, discounts_path, *this),
+      deleter(restaurants_path, districts_path, discounts_path, *this),
+      getter(restaurants_path, districts_path, discounts_path, *this) {}
+void UTaste::checkCommand(const vector<string> &command_words, string &test)
 {
-    string command, word;
-    vector<string> command_words;
-    bool inside_quotes = false;
-    string current_token = "";
-
-    while (getline(cin, command))
+    if (command_words[0] == "GET")
     {
-        try
-        {
-            command_words.clear();
-            stringstream command_stream(command);
-            while (getline(command_stream, word, ' '))
-            {
-                if (!inside_quotes && word.front() == '"' && word.back() == '"')
-                {
-                    command_words.push_back(word);
-                }
-                else if (!inside_quotes && word.front() == '"' && word.back() != '"')
-                {
-                    inside_quotes = true;
-                    current_token = word;
-                }
-                else if (inside_quotes)
-                {
-                    current_token += " " + word;
-                    if (word.back() == '"')
-                    {
-                        inside_quotes = false;
-                        command_words.push_back(current_token);
-                        current_token.clear();
-                    }
-                }
-                else
-                {
-                    command_words.push_back(word);
-                }
-            }
-            if (command_words[0] == "GET")
-            {
-                getter.checkCommand(command_words);
-            }
-            else if (command_words[0] == "PUT")
-            {
-                putter.checkCommand(command_words);
-            }
-            else if (command_words[0] == "POST")
-            {
-                poster.checkCommand(command_words);
-            }
-            else if (command_words[0] == "DELETE")
-            {
-                deleter.checkCommand(command_words);
-            }
-            else
-            {
-                throw Exception(BAD_REQ);
-            }
-        }
-        catch (Exception &ex)
-        {
-            ex.handleException();
-        }
+        getter.checkCommand(command_words, test);
+    }
+    else if (command_words[0] == "PUT")
+    {
+        putter.checkCommand(command_words, test);
+    }
+    else if (command_words[0] == "POST")
+    {
+        poster.checkCommand(command_words, test);
+    }
+    else if (command_words[0] == "DELETE")
+    {
+        deleter.checkCommand(command_words, test);
+    }
+    else
+    {
+        throw Exception(BAD_REQ);
     }
 }
 void UTaste::deleteReserve(vector<string> &command_words)
@@ -83,6 +40,13 @@ void UTaste::deleteReserve(vector<string> &command_words)
     poster.setBudget(expense);
     deleter.setBudget(expense);
     throw Exception(OK);
+}
+void UTaste::delLastReserve(string &name)
+{
+    putter.delLastReserve(name);
+    poster.delLastReserve(name);
+    deleter.delLastReserve(name);
+    getter.delLastReserve(name);
 }
 void UTaste::setNewUser(pair<USERNAME, USER_DATA> &new_user)
 {
@@ -115,22 +79,24 @@ void UTaste::setUserDistrict(string *districti_ptr, string username)
 }
 void UTaste::setReserve(string *&restaurant_name_ptr, string *&table_id_ptr, string *&start_time_ptr,
                         string *&end_time_ptr,
-                        string *&foods_ptr)
+                        string *&foods_ptr, string &test)
 {
     putter.setReserve(restaurant_name_ptr, table_id_ptr, start_time_ptr, end_time_ptr, foods_ptr);
     putter.handleReserve(restaurant_name_ptr, table_id_ptr, start_time_ptr, end_time_ptr, foods_ptr);
     getter.handleReserve(restaurant_name_ptr, table_id_ptr, start_time_ptr, end_time_ptr, foods_ptr);
     deleter.handleReserve(restaurant_name_ptr, table_id_ptr, start_time_ptr, end_time_ptr, foods_ptr);
     poster.handleReserve(restaurant_name_ptr, table_id_ptr, start_time_ptr, end_time_ptr, foods_ptr);
-    pair<int, int> expenses = putter.printReserveMessage(restaurant_name_ptr);
-    putter.setLastReserveExpense(restaurant_name_ptr, expenses);
-    getter.setLastReserveExpense(restaurant_name_ptr, expenses);
-    deleter.setLastReserveExpense(restaurant_name_ptr, expenses);
-    poster.setLastReserveExpense(restaurant_name_ptr, expenses);
-    putter.decreaseBudget(expenses.first);
-    getter.decreaseBudget(expenses.first);
-    poster.decreaseBudget(expenses.first);
-    deleter.decreaseBudget(expenses.first);
+    Temp temp;
+    temp = putter.printReserveMessage(restaurant_name_ptr);
+    putter.setLastReserveExpense(restaurant_name_ptr, temp.expenses);
+    getter.setLastReserveExpense(restaurant_name_ptr, temp.expenses);
+    deleter.setLastReserveExpense(restaurant_name_ptr, temp.expenses);
+    poster.setLastReserveExpense(restaurant_name_ptr, temp.expenses);
+    putter.decreaseBudget(temp.expenses.first);
+    getter.decreaseBudget(temp.expenses.first);
+    poster.decreaseBudget(temp.expenses.first);
+    deleter.decreaseBudget(temp.expenses.first);
+    test = temp.msg;
 }
 void UTaste::increaseBudget(int &amount)
 {

@@ -2,12 +2,12 @@
 #define EXCEPTION_HPP
 #include "head.hpp"
 
-
 class Exception
 {
 public:
     Exception(string discription_);
-    void handleException ();
+    string getErrorMessage() { return discription; }
+    void handleException();
 
 private:
     string discription;

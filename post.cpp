@@ -1,7 +1,7 @@
 #include "post.hpp"
 #include "Utaste.hpp"
-Poster::Poster(string districts_path, string restaurants_path, string discounts_path, UTaste &utaste_ref) : Command(districts_path, restaurants_path, discounts_path), utaste(&utaste_ref) {}
-void Poster::checkCommand(vector<string> command_words)
+Poster::Poster(string districts_path, string restaurants_path, string discounts_path, UTaste &utaste_ref) : Command(districts_path, restaurants_path, discounts_path, utaste_ref), utaste(&utaste_ref) {}
+void Poster::checkCommand(vector<string> command_words, string &test)
 {
     if (command_words[1] == SIGNUP)
     {
@@ -17,7 +17,7 @@ void Poster::checkCommand(vector<string> command_words)
     }
     else if (command_words[1] == RESERVE)
     {
-        this->reserveFunc(command_words);
+        this->reserveFunc(command_words , test);
     }
     else if (command_words[1] == INCREASE_BUDGET)
     {
@@ -198,7 +198,7 @@ void Poster::logOut(vector<string> &command_words)
     }
     throw Exception(PERMISSION);
 }
-void Poster::reserveFunc(vector<string> &command_words)
+void Poster::reserveFunc(vector<string> &command_words, string &test)
 {
     string *restaurant_name_ptr = nullptr;
     string *table_id_ptr = nullptr;
@@ -211,7 +211,7 @@ void Poster::reserveFunc(vector<string> &command_words)
     }
     else
     {
-        utaste->setReserve(restaurant_name_ptr, table_id_ptr, start_time_ptr, end_time_ptr, foods_ptr);
+        utaste->setReserve(restaurant_name_ptr, table_id_ptr, start_time_ptr, end_time_ptr, foods_ptr, test);
     }
 }
 void Poster::increaseBudget(vector<string> &command_words)

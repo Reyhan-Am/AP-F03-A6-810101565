@@ -2,7 +2,7 @@
 #include "Utaste.hpp"
 Restaurant::Restaurant(string name_, string district_, map<string, int> foods_, int opening_time_, int closing_time_, int table_no_, Discount &first_discount_,
                        TotalDiscount &total_discount_,
-                       vector<ItemSpecificDiscount> &food_discounts_)
+                       vector<ItemSpecificDiscount> &food_discounts_, UTaste &utaste_ref)
     : name(name_),
       district(district_),
       foods(foods_),
@@ -11,7 +11,7 @@ Restaurant::Restaurant(string name_, string district_, map<string, int> foods_, 
       table_no(table_no_),
       first_discount(first_discount_),
       total_discount(total_discount_),
-      food_discounts(food_discounts_)
+      food_discounts(food_discounts_), utaste(&utaste_ref)
 {
 }
 void Restaurant::printing()
@@ -31,11 +31,11 @@ bool Restaurant::checkConflict(string *&end_time_ptr, string *&start_time_ptr, s
     {
         if (reserve.getTableNum() == (*table_id_ptr).substr(1, (*table_id_ptr).size() - 2))
         {
-            if (stoi((*end_time_ptr).substr(1, (*end_time_ptr).size() - 2)) <= reserve.getTimes().second && (stoi((*end_time_ptr).substr(1, (*end_time_ptr).size() - 2)) >= reserve.getTimes().first))
+            if (stoi((*end_time_ptr).substr(1, (*end_time_ptr).size() - 2)) <= reserve.getTimes().second && (stoi((*end_time_ptr).substr(1, (*end_time_ptr).size() - 2)) > reserve.getTimes().first))
             {
                 return true;
             }
-            else if (stoi((*start_time_ptr).substr(1, (*start_time_ptr).size() - 2)) <= reserve.getTimes().second && (stoi((*start_time_ptr).substr(1, (*start_time_ptr).size() - 2)) >= reserve.getTimes().first))
+            else if (stoi((*start_time_ptr).substr(1, (*start_time_ptr).size() - 2)) < reserve.getTimes().second && (stoi((*start_time_ptr).substr(1, (*start_time_ptr).size() - 2)) >= reserve.getTimes().first))
             {
                 return true;
             }
@@ -49,11 +49,11 @@ bool Restaurant::checkUserConflict(string &owner, string *&start_time_ptr, strin
     {
         if (reserve.getOwner() == owner)
         {
-            if (stoi((*end_time_ptr).substr(1, (*end_time_ptr).size() - 2)) <= reserve.getTimes().second && (stoi((*end_time_ptr).substr(1, (*end_time_ptr).size() - 2)) >= reserve.getTimes().first))
+            if (stoi((*end_time_ptr).substr(1, (*end_time_ptr).size() - 2)) <= reserve.getTimes().second && (stoi((*end_time_ptr).substr(1, (*end_time_ptr).size() - 2)) > reserve.getTimes().first))
             {
                 return true;
             }
-            else if (stoi((*start_time_ptr).substr(1, (*start_time_ptr).size() - 2)) <= reserve.getTimes().second && (stoi((*start_time_ptr).substr(1, (*start_time_ptr).size() - 2)) >= reserve.getTimes().first))
+            else if (stoi((*start_time_ptr).substr(1, (*start_time_ptr).size() - 2)) < reserve.getTimes().second && (stoi((*start_time_ptr).substr(1, (*start_time_ptr).size() - 2)) >= reserve.getTimes().first))
             {
                 return true;
             }
@@ -114,7 +114,7 @@ void Restaurant::handleReserve(string &owner, string *&table_id_ptr, string *&st
     Reserve temp_reserve(owner, temp_foods, {start_time, end_time}, reserves.size() + 1, stoi((*table_id_ptr).substr(1, (*table_id_ptr).size() - 2)));
     reserves.push_back(temp_reserve);
 }
-pair<int, int> Restaurant::printReserveMessage(int &user_balance)
+Temp Restaurant::printReserveMessage(int &user_balance)
 {
     int original_price = 0;
     vector<string> reserved_foods = reserves[reserves.size() - 1].getFoods();
@@ -138,7 +138,7 @@ pair<int, int> Restaurant::printReserveMessage(int &user_balance)
     }
     else
     {
-        reserves.pop_back();
+        utaste->delLastReserve(name);
         throw Exception(BAD_REQ);
     }
 }
@@ -162,14 +162,14 @@ int Restaurant::calc_first_dis(int temp_price)
     int result = 0;
     string owner = reserves[reserves.size() - 1].getOwner();
     int cnt = 0;
-    for (auto reserve : reserves)
+    for (auto r : reserves)
     {
-        if (reserve.getOwner() == owner)
+        if (r.getOwner() == owner)
         {
             cnt++;
         }
     }
-    if (cnt == 1)
+    if (cnt == 1 && reserves.back().getFoods().size() != 0)
     {
         first_discount.calc_first_dis(temp_price, result);
     }
@@ -215,7 +215,7 @@ bool Restaurant::isFoodInMenu(string *&food_ptr)
     }
     return false;
 }
-void Restaurant::getUserReservesR(string &owner)
+void Restaurant::getUserReservesR(string &owner, string &test)
 {
     vector<Reserve> temp_user_reserves;
     for (auto reserve : reserves)
@@ -237,11 +237,11 @@ void Restaurant::getUserReservesR(string &owner)
         {
             int without_dis = 0;
             int with_dis = 0;
-            item.printUserReservesRI(name, with_dis, without_dis);
+            item.printUserReservesRI(name, with_dis, without_dis, test);
         }
     }
 }
-void Restaurant::getUserReservesRI(string &owner, string *&reserve_id_ptr)
+void Restaurant::getUserReservesRI(string &owner, string *&reserve_id_ptr, string &test)
 {
     vector<Reserve> temp_user_reserves;
     for (auto reserve : reserves)
@@ -270,7 +270,7 @@ void Restaurant::getUserReservesRI(string &owner, string *&reserve_id_ptr)
         {
             int without_dis = 0;
             int with_dis = 0;
-            item.printUserReservesRI(name, with_dis, without_dis);
+            item.printUserReservesRI(name, with_dis, without_dis, test);
         }
     }
 }

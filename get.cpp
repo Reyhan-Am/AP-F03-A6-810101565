@@ -1,7 +1,7 @@
 #include "get.hpp"
 #include "Utaste.hpp"
-Getter::Getter(string districts_path, string restaurants_path, string discounts_path) : Command(districts_path, restaurants_path, discounts_path) {}
-void Getter::checkCommand(vector<string> command_words)
+Getter::Getter(string districts_path, string restaurants_path, string discounts_path, UTaste &utaste_ref) : Command(districts_path, restaurants_path, discounts_path, utaste_ref), utaste(&utaste_ref) {}
+void Getter::checkCommand(vector<string> command_words, string &test)
 {
     if (this->hasPermission("") == false)
     {
@@ -30,7 +30,7 @@ void Getter::checkCommand(vector<string> command_words)
     }
     else if (command_words[1] == RESERVES)
     {
-        this->getUserReserves(command_words);
+        this->getUserReserves(command_words, test);
     }
     else if (command_words[1] == SHOW_BUDGET)
     {
@@ -218,7 +218,7 @@ void Getter::showRestaurants(string &district, string *&food_ptr, int &restauran
         }
     }
 }
-void Getter::getUserReserves(vector<string> &command_words)
+void Getter::getUserReserves(vector<string> &command_words, string &test)
 {
     string *restaurant_name_ptr = nullptr;
     string *reserve_id_ptr = nullptr;
@@ -236,42 +236,42 @@ void Getter::getUserReserves(vector<string> &command_words)
     }
     if (restaurant_name_ptr == nullptr)
     {
-        this->getUserReservesAll(owner);
+        this->getUserReservesAll(owner, test);
     }
-    else if (restaurant_name_ptr != nullptr && reserve_id_ptr == nullptr)
+    else if ((restaurant_name_ptr != nullptr) && (reserve_id_ptr == nullptr))
     {
-        this->getUserReservesR(restaurant_name_ptr, owner);
+        this->getUserReservesR(restaurant_name_ptr, owner, test);
     }
-    else if (restaurant_name_ptr != nullptr && reserve_id_ptr != nullptr)
+    else if ((restaurant_name_ptr != nullptr) && (reserve_id_ptr != nullptr))
     {
-        this->getUserReservesRI(restaurant_name_ptr, reserve_id_ptr, owner);
+        this->getUserReservesRI(restaurant_name_ptr, reserve_id_ptr, owner, test);
     }
 }
-void Getter::getUserReservesR(string *&restaurant_name_ptr, string &owner)
+void Getter::getUserReservesR(string *&restaurant_name_ptr, string &owner, string &test)
 {
     for (auto &restaurant : restaurants)
     {
         if (restaurant.getName() == (*restaurant_name_ptr).substr(1, (*restaurant_name_ptr).size() - 2))
         {
-            restaurant.getUserReservesR(owner);
+            restaurant.getUserReservesR(owner, test);
             return;
         }
     }
     throw Exception(NOT_FOUND);
 }
-void Getter::getUserReservesRI(string *&restaurant_name_ptr, string *&reserve_id_ptr, string &owner)
+void Getter::getUserReservesRI(string *&restaurant_name_ptr, string *&reserve_id_ptr, string &owner, string &test)
 {
     for (auto &restaurant : restaurants)
     {
         if (restaurant.getName() == (*restaurant_name_ptr).substr(1, (*restaurant_name_ptr).size() - 2))
         {
-            restaurant.getUserReservesRI(owner, reserve_id_ptr);
+            restaurant.getUserReservesRI(owner, reserve_id_ptr, test);
             return;
         }
     }
     throw Exception(NOT_FOUND);
 }
-void Getter::getUserReservesAll(string &owner)
+void Getter::getUserReservesAll(string &owner, string &test)
 {
     int reserves_nums = 0;
     vector<pair<Reserve, string>> all_user_reserves;
@@ -291,7 +291,7 @@ void Getter::getUserReservesAll(string &owner)
         {
             int without_dis = 0;
             int with_dis = 0;
-            item.first.printUserReservesRI(item.second, with_dis, without_dis);
+            item.first.printUserReservesRI(item.second, with_dis, without_dis, test);
         }
     }
 }

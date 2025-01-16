@@ -18,8 +18,8 @@ public:
         expense = new_expenses.first;
         pure_expense = new_expenses.second;
     }
-    pair<int, int> printReserveMessage(string &restaurant_name, int price, int &first_diss, int &food_diss, int &total_diss, int &final_diss);
-    void printUserReservesRI(string &restaurant_name, int &with_dis, int &without_dis);
+    Temp printReserveMessage(string &restaurant_name, int price, int &first_diss, int &food_diss, int &total_diss, int &final_diss);
+    void printUserReservesRI(string &restaurant_name, int &with_dis, int &without_dis, string &test);
     int getID() { return id; };
 
 private:

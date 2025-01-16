@@ -3,15 +3,18 @@
 #include "head.hpp"
 #include "restaurant.hpp"
 
+class UTaste;
+
 class Command
 {
 public:
-    Command(string districts_path, string restaurants_path, string discounts_path);
+    Command(string restaurants_path, string districts_path, string discounts_path, UTaste &utaste_ref);
     void readDistricts(string districs_path);
-    void readRestaurants(string restaurants_path, string discounts_path);
+    void readRestaurants(string restaurants_path, string discounts_path, UTaste &utaste_ref);
     void readDiscounts(Discount &first_dis, TotalDiscount &total_dis, vector<ItemSpecificDiscount> &food_dis, string discounts_path, string &restaurant_name);
     void setNewUser(pair<USERNAME, USER_DATA> &new_user);
     void setLogin(string username);
+    void delLastReserve(string &name);
     void setLogout(string username);
     void setUserDistrict(string *districti_ptr, string username);
     void setReserve(string *&restaurant_name_ptr, string *&table_id_ptr, string *&start_time_ptr,
@@ -35,9 +38,9 @@ public:
     bool checkFoodsTables(Restaurant &restaurant, string *&foods_ptr, string *&table_id_ptr);
     void handleReserve(string *&restaurant_name_ptr, string *&table_id_ptr, string *&start_time_ptr, string *&end_time_ptr, string *&foods_ptr);
     bool hasPermission(string username);
-    virtual void checkCommand(vector<string> command_words) = 0;
+    virtual void checkCommand(vector<string> command_words , string &test) = 0;
     void setLastReserveExpense(string *&restaurant_name_ptr, pair<int, int> &expense);
-    pair<int, int> printReserveMessage(string *&restaurant_name_ptr);
+    Temp printReserveMessage(string *&restaurant_name_ptr);
     int getReserveNum()
     {
         int num = 0;
