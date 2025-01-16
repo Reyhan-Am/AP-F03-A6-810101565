@@ -5,7 +5,7 @@ BUILD_DIRECTORY=build
 
 all: UTaste
 
-UTaste: $(BUILD_DIRECTORY)/main.o $(BUILD_DIRECTORY)/Utaste.o $(BUILD_DIRECTORY)/reserves.o $(BUILD_DIRECTORY)/discount.o $(BUILD_DIRECTORY)/item_specific_discount.o $(BUILD_DIRECTORY)/total_discount.o $(BUILD_DIRECTORY)/helperfunctions.o $(BUILD_DIRECTORY)/Utaste.o $(BUILD_DIRECTORY)/constants.o $(BUILD_DIRECTORY)/exception.o $(BUILD_DIRECTORY)/restaurant.o $(BUILD_DIRECTORY)/command.o $(BUILD_DIRECTORY)/put.o $(BUILD_DIRECTORY)/post.o $(BUILD_DIRECTORY)/get.o $(BUILD_DIRECTORY)/delete.o 
+UTaste: $(BUILD_DIRECTORY)/main.o $(BUILD_DIRECTORY)/server.o $(BUILD_DIRECTORY)/route.o $(BUILD_DIRECTORY)/utilities.o $(BUILD_DIRECTORY)/handlers.o $(BUILD_DIRECTORY)/response.o $(BUILD_DIRECTORY)/request.o $(BUILD_DIRECTORY)/Utaste.o $(BUILD_DIRECTORY)/reserves.o $(BUILD_DIRECTORY)/discount.o $(BUILD_DIRECTORY)/item_specific_discount.o $(BUILD_DIRECTORY)/total_discount.o $(BUILD_DIRECTORY)/helperfunctions.o $(BUILD_DIRECTORY)/Utaste.o $(BUILD_DIRECTORY)/constants.o $(BUILD_DIRECTORY)/exception.o $(BUILD_DIRECTORY)/restaurant.o $(BUILD_DIRECTORY)/command.o $(BUILD_DIRECTORY)/put.o $(BUILD_DIRECTORY)/post.o $(BUILD_DIRECTORY)/get.o $(BUILD_DIRECTORY)/delete.o 
 	$(Compiler) $^ -o UTaste
 
 $(BUILD_DIRECTORY):
@@ -19,6 +19,24 @@ $(BUILD_DIRECTORY)/constants.o: constants.cpp constants.hpp| $(BUILD_DIRECTORY)
 
 $(BUILD_DIRECTORY)/discount.o: discount.cpp discount.hpp head.hpp| $(BUILD_DIRECTORY)
 	$(Compiler) -c discount.cpp -o $(BUILD_DIRECTORY)/discount.o
+
+$(BUILD_DIRECTORY)/server.o: server.cpp server.hpp head.hpp include.hpp response.hpp response.cpp request.hpp request.cpp route.hpp route.cpp Utaste.hpp Utaste.cpp| $(BUILD_DIRECTORY)
+	$(Compiler) -c server.cpp -o $(BUILD_DIRECTORY)/server.o
+
+$(BUILD_DIRECTORY)/route.o: route.cpp route.hpp head.hpp include.hpp response.hpp response.cpp request.hpp request.cpp | $(BUILD_DIRECTORY)
+	$(Compiler) -c route.cpp -o $(BUILD_DIRECTORY)/route.o
+
+$(BUILD_DIRECTORY)/response.o: response.cpp response.hpp head.hpp include.hpp utilities.hpp utilities.cpp| $(BUILD_DIRECTORY)
+	$(Compiler) -c response.cpp -o $(BUILD_DIRECTORY)/response.o
+
+$(BUILD_DIRECTORY)/request.o: request.cpp request.hpp head.hpp include.hpp utilities.hpp utilities.cpp| $(BUILD_DIRECTORY)
+	$(Compiler) -c request.cpp -o $(BUILD_DIRECTORY)/request.o
+
+$(BUILD_DIRECTORY)/utilities.o: utilities.cpp utilities.hpp
+	$(Compiler) -c utilities.cpp -o $(BUILD_DIRECTORY)/utilities.o
+
+$(BUILD_DIRECTORY)/handlers.o: handlers.cpp handlers.hpp head.hpp server.hpp server.cpp Utaste.hpp Utaste.cpp| $(BUILD_DIRECTORY)
+	$(Compiler) -c handlers.cpp -o $(BUILD_DIRECTORY)/handlers.o
 
 $(BUILD_DIRECTORY)/total_discount.o: total_discount.cpp total_discount.hpp discount.hpp head.hpp| $(BUILD_DIRECTORY)
 	$(Compiler) -c total_discount.cpp -o $(BUILD_DIRECTORY)/total_discount.o
@@ -38,7 +56,7 @@ $(BUILD_DIRECTORY)/exception.o: exception.cpp exception.hpp head.hpp| $(BUILD_DI
 $(BUILD_DIRECTORY)/Utaste.o: Utaste.cpp Utaste.hpp put.hpp put.cpp post.hpp post.cpp get.hpp get.cpp delete.hpp delete.cpp head.hpp exception.hpp| $(BUILD_DIRECTORY)
 	$(Compiler) -c Utaste.cpp -o $(BUILD_DIRECTORY)/Utaste.o
 
-$(BUILD_DIRECTORY)/command.o: command.cpp command.hpp head.hpp restaurant.hpp| $(BUILD_DIRECTORY)
+$(BUILD_DIRECTORY)/command.o: command.cpp command.hpp head.hpp restaurant.hpp Utaste.hpp| $(BUILD_DIRECTORY)
 	$(Compiler) -c command.cpp -o $(BUILD_DIRECTORY)/command.o
 
 $(BUILD_DIRECTORY)/put.o: put.cpp put.hpp command.hpp head.hpp Utaste.hpp| $(BUILD_DIRECTORY)
